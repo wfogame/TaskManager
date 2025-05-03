@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Node.js Core Cheatsheet</title>
+    <link rel = 'stylesheet' href = 'style.css'>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 2rem;
+            max-width: 1000px;
+        }
+        
+        h1, h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+        }
+
+        .example {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Node.js Core Cheatsheet</h1>
+
+    <!-- Core Modules Section -->
+    <h2>1. Core Modules</h2>
+    <table>
+        <tr>
+            <th>Module</th>
+            <th>Purpose</th>
+            <th>Key Methods/Properties</th>
+        </tr>
+        <tr>
+            <td><code>http</code></td>
+            <td>Create HTTP servers/clients</td>
+            <td><code>createServer()</code>, <code>request()</code>, <code>req.url</code>, <code>req.method</code></td>
+        </tr>
+        <tr>
+            <td><code>fs</code></td>
+            <td>File system operations</td>
+            <td><code>readFile()</code>, <code>writeFile()</code>, <code>appendFile()</code></td>
+        </tr>
+        <tr>
+            <td><code>path</code></td>
+            <td>Path handling</td>
+            <td><code>join()</code>, <code>resolve()</code>, <code>parse()</code></td>
+        </tr>
+        <tr>
+            <td><code>events</code></td>
+            <td>Event-driven architecture</td>
+            <td><code>EventEmitter</code>, <code>.on()</code>, <code>.emit()</code></td>
+        </tr>
+    </table>
+
+
+    
+</body>
+</html>

@@ -1,0 +1,161 @@
+/* ===== Base Styles ===== */
+:root {
+    --primary-color: #6d28d9;    /* Purple */
+    --secondary-color: #4c1d95;  /* Darker purple */
+    --background: #f8fafc;       /* Off-white */
+    --text-color: #1e293b;       /* Dark gray */
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+  
+  body {
+    background: var(--background);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  
+  /* ===== Container ===== */
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* ===== Header ===== */
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+  
+  /* ===== Task List ===== */
+  #tasks {
+    margin: 2rem 0;
+  }
+  
+  .task {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .task:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* ===== Input & Buttons ===== */
+  #taskInput {
+    flex: 1;
+    padding: 0.8rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.4s;
+    width:50%;
+    height:100px;
+    margin-top: 0.8rem;;
+  }
+  
+  #taskInput:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    
+  }
+  
+  .input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  button {
+    padding: 0.8rem 1.5rem;
+    border: outset;
+    border-radius: 6px;
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.4s;
+    border-color: var(--secondary-color);
+    border-width: 2px;
+    width:120px;
+    height:45px;
+  }
+  
+  button:hover {
+    background: var(--secondary-color);
+  }
+  
+  .delete-btn {
+    background: #dc2626;  /* Red */
+    margin-left: auto;
+  }
+  
+  .delete-btn:hover {
+    background: #b91c1c;  /* Darker red */
+  }
+  
+  /* ===== Checkbox ===== */
+  input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    accent-color: var(--primary-color);
+    cursor: pointer;
+  }
+  
+  /* ===== Error Message ===== */
+  .error-message {
+    color: #dc2626;
+    background: #fee2e2;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    display: none;
+  }
+  
+  .error-message.show {
+    display: block;
+  }
+  
+  /* ===== Responsive Design ===== */
+  @media (max-width: 600px) {
+    .container {
+      padding: 1rem;
+    }
+    
+    h1 {
+      font-size: 2rem;
+    }
+    
+    .input-group {
+      flex-direction: column;
+    }
+    
+    button {
+      width: 100%;
+ 
+    }
+  }
