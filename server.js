@@ -75,10 +75,20 @@ const server = http.createServer(async (req, res) => {
         res.statusCode = 404;
         res.end('File not found');
       } else {
-        res.setHeader('Content-Type', 'text/html');
+        const ext = path.extname(filePath);
+        const ContentType = {
+            '.html': 'text/html',
+            '.css': 'text/css',
+            '.js': 'application/javascript',
+            '.json': 'application/json'
+        }[ext]
+
+        res.setHeader('Content-Type', ContentType);
         res.end(data);
+
       }
     });
+   
   }
 });
 
