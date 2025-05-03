@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Task Manager (Pure Node.js)</title>
+  <link rel = 'stylesheet' href = 'style.css'>
+</head>
+<body>
+  <h1>Task Manager</h1>
+  <div id="tasks"></div>
+  <input type="text" id="taskInput" placeholder="New task">
+  <button onclick="addTask()">Add Task</button>
+
+  <script>
+    // Fetch and display tasks
+    async function loadTasks() {
+      const response = await fetch('http://localhost:3000/api/tasks');
+      const tasks = await response.json();
+      const tasksDiv = document.getElementById('tasks');
+      tasksDiv.innerHTML = tasks.map(task => `
+        <div>
+          <span>${task.title}</span>
+          <button onclick="deleteTask(${task.id})">Delete</button>
+        </div>
+      `).join('');
+    }
+
+    // Add task
+    async function addTask() {
+      const title = document.getElementById('taskInput').value;
+      await fetch('http://localhost:3000/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title })
+      });
+      loadTasks();
+      document.getElementById('taskInput').value = '';
+    }
+
+    // Delete task
+    async function deleteTask(id) {
+      await fetch(`http://localhost:3000/api/tasks/${id}`, { method: 'DELETE' });
+      loadTasks();
+    }
+
+    loadTasks(); // Initial load
+  </script>
+</body>
+</html>
