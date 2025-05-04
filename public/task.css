@@ -83,7 +83,25 @@
     border-color: var(--primary-color);
     
   }
+  #taskInputs {
+    flex: 1;
+    padding: 0.8rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.4s;
+    width:50%;
+    height:100px;
+    margin-top: 0.8rem;;
+  }
   
+  #taskInputs:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    
+  }
+  
+
   .input-group {
     display: flex;
     gap: 1rem;

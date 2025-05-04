@@ -18,12 +18,12 @@
   <script>
     // Fetch and display tasks
     async function loadTasks() {
-      const response = await fetch('http://localhost:3000/api/tasks');
+      const response = await fetch('api/tasks');
       const tasks = await response.json();
       const tasksDiv = document.getElementById('tasks');
       tasksDiv.innerHTML = tasks.map(task => `
         <div>
-          <textarea readonly id = 'taskInput'>${task.title}</textarea>
+          <textarea readonly id = 'taskInputs'>${task.title}</textarea>
           <br>
           <button onclick="deleteTask(${task.id})">Delete</button>
         </div>
@@ -33,7 +33,7 @@
     // Add task
     async function addTask() {
       const title = document.getElementById('taskInput').value;
-      await fetch('http://localhost:3000/api/tasks', {
+      await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title })
@@ -44,7 +44,7 @@
 
     // Delete task
     async function deleteTask(id) {
-      await fetch(`http://localhost:3000/api/tasks/${id}`, { method: 'DELETE' });
+      await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
       loadTasks();
     }
     
