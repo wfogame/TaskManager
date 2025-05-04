@@ -74,11 +74,7 @@
 
 <div align="center">
   <table>
-    <tr>
-      <td><img src="https://via.placeholder.com/400x250.png?text=Home+Page" width="100%" style="border-radius:10px"></td>
-      <td><img src="https://via.placeholder.com/400x250.png?text=Tasks+Page" width="100%" style="border-radius:10px"></td>
-      <td><img src="https://via.placeholder.com/400x250.png?text=Node.js+Docs" width="100%" style="border-radius:10px"></td>
-    </tr>
+
     <tr>
       <td align="center"><em>Home Navigation Hub</em></td>
       <td align="center"><em>Task Management UI</em></td>
