@@ -1,13 +1,22 @@
 {
   "name": "projectss",
   "version": "1.0.0",
-  "description": "",
+  "description": "<!-- Custom Header with Logo & Gradient Text -->\r <h1 align=\"center\">\r   <img src=\"https://www.vectorlogo.zone/logos/nodejs/nodejs-icon.svg\" alt=\"Node.js Logo\" width=\"80\">\r   <br>\r   <span style=\"background: linear-gradient(45deg, #6d28d9, #4c1d95); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2.5em;\">\r     Ultimate Node.js Task Manager\r   </span>\r   <br>\r   <img src=\"https://img.shields.io/badge/Powered_By-Pure_Node.js-339933?logo=node.js&logoColor=white\" alt=\"Powered By Node.js\">\r </h1>",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wfogame/TaskManager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wfogame/TaskManager/issues"
+  },
+  "homepage": "https://github.com/wfogame/TaskManager#readme"
 }
