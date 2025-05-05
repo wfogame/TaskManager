@@ -1,89 +1,46 @@
-<!-- Custom Header with Logo & Gradient Text -->
 <h1 align="center">
-  <img src="https://www.vectorlogo.zone/logos/nodejs/nodejs-icon.svg" alt="Node.js Logo" width="80">
-  <br>
-  <span style="background: linear-gradient(45deg, #6d28d9, #4c1d95); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 2.5em;">
-    Ultimate Node.js Task Manager
-  </span>
-  <br>
-  <img src="https://img.shields.io/badge/Powered_By-Pure_Node.js-339933?logo=node.js&logoColor=white" alt="Powered By Node.js">
-</h1>
+<img src="https://www.vectorlogo.zone/logos/nodejs/nodejs-icon.svg" width="80"><br>
+<span style="background:linear-gradient(45deg,#6d28d9,#4c1d95);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Node.js Task Manager</span><br>
+<img src="https://img.shields.io/badge/Node.js-18.x-green?logo=node.js"></h1>
+<div align="center"><img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png" width="80%"></div>
 
-<!-- Animated Divider -->
-<div align="center">
-  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png" width="80%">
-</div>
+## 📖 Table of Contents  
+1. [Features](#-features)  
+2. [Installation](#-installation)  
+3. [API Docs](#-api-docs)  
+4. [Architecture](#-architecture)  
+5. [FAQ](#-faq)  
 
-## 📖 Table of Contents
-1. [Features](#-feature-highlights)
-2. [Screenshots](#-visual-showcase)
-3. [Installation](#-installation-guide)
-4. [API Docs](#-api-documentation)
-5. [Architecture](#-system-architecture)
-6. [Contributing](#-contributing-guide)
-7. [FAQ](#-frequently-asked-questions)
+## 🚀 Features  
+<table><tr><td width="33%"><h3>📦 Core</h3><ul><li>CRUD Operations</li><li>JSON Storage</li><li>Real-time Sync</li></ul></td><td width="33%"><h3>🎨 UI</h3><ul><li>Responsive Design</li><li>CSS Animations</li><li>Error Handling</li></ul></td><td width="33%"><h3>📚 Learning</h3><ul><li>Node.js Cheatsheet</li><li>Code Examples</li><li>Best Practices</li></ul></td></tr></table>
 
-<!-- ... (Keep all existing feature/screenshot/installation sections unchanged) ... -->
+## 🔧 Installation  
+```bash
+git clone https://github.com/yourusername/nodejs-task-manager.git
+cd nodejs-task-manager && node server.js
+```
 
-<!-- 4. API Documentation Section -->
-<h2 id="api-documentation">4. 📚 API Documentation</h2>
-
+## 📚 API Docs  
 ```http
 GET /api/tasks
-Response
+POST /api/tasks
+DELETE /api/tasks/:id
+```  
+| Method | Endpoint | Status Codes |  
+|--------|----------|--------------|  
+| `GET` | `/api/tasks` | 200 ✅ 404 ❌ |  
+| `POST` | `/api/tasks` | 201 ✨ 400 ⚠️ |  
+| `DELETE` | `/api/tasks/:id` | 204 🗑️ 404 ❌ |  
 
-json
-[
-  {
-    "id": 1,
-    "title": "Buy groceries",
-    "createdAt": "2023-08-20T12:34:56Z"
-  }
-]
-<div class="api-table"> <table> <tr> <th>Method</th> <th>Endpoint</th> <th>Description</th> <th>Status Codes</th> </tr> <tr> <td><code>GET</code></td> <td><code>/api/tasks</code></td> <td>Retrieve all tasks</td> <td>200 ✅, 404 ❌</td> </tr> <!-- ... (Keep existing API table content) ... --> </table> </div><!-- 5. Architecture Section --><h2 id="system-architecture">5. 🏗 System Architecture</h2>
-text
-█████████████████████████████████████████████
-█          Client-Side (Browser)           █
-█████████████████████████████████████████████
-       ▲               │               ▲
-       │ JSON          │ HTML/CSS/JS   │
-       ▼               │               ▼
-█████████████████████████████████████████████
-█          Node.js Server (v18.x)         █
-█  ┌──────────┐        ┌──────────┐      █
-█  │ HTTP     │        │ FS       │      █
-█  │ Module   ├───────►│ Module   │      █
-█  └──────────┘        └──────────┘      █
-█████████████████████████████████████████████
-<!-- 6. Contributing Section --><h2 id="contributing-guide">6. 👥 Contributing Guide</h2>
-Fork the repository
+## 🏗 Architecture  
+```text
+┌─────────────┐ HTTP ┌─────────────┐ FS ┌─────────────┐
+│  Browser    │◄────►│ Node Server │◄──►│ tasks.json │
+└─────────────┘      └─────────────┘    └─────────────┘
+```
 
-Create feature branch:
+## ❓ FAQ  
+<details><summary>How to change port?</summary><br><code>PORT=4000 node server.js</code></details>  
+<details><summary>Data storage?</summary><br>Stored in <code>tasks.json</code> using Node.js fs</details>
 
-bash
-git checkout -b feat/amazing-feature
-Commit changes:
-
-bash
-git commit -m "feat: add amazing feature"
-Push to branch:
-
-bash
-git push origin feat/amazing-feature
-Open Pull Request
-
-<div align="center"> <img src="https://img.shields.io/github/contributors/yourusername/nodejs-task-manager?color=purple&label=Contributors" alt="Contributors"> </div><!-- 7. FAQ Section --><h2 id="frequently-asked-questions">7. ❓ Frequently Asked Questions</h2><details> <summary>How to handle CORS issues?</summary> <br> Our server includes CORS headers: ```javascript res.setHeader('Access-Control-Allow-Origin', '*'); ``` </details><!-- ... (Keep existing footer/badges content) ... -->
-
-Key changes made:
-1. Added explicit numbering (4.-7.) in section headers
-2. Maintained all original styling and content structure
-3. Ensured anchor links match between TOC and sections:
-   - `#-api-documentation`
-   - `#-system-architecture`
-   - `#-contributing-guide`
-   - `#-frequently-asked-questions`
-4. Preserved all existing tables/code blocks/visual elements
-5. Kept interactive elements like collapsible sections
-
-The rest of the README (features, screenshots, installation, styling elements) remains unchanged from your previous version. This maintains visual consistency while adding explicit section numbering as requested.
-
+<div align="center"><img src="https://forthebadge.com/images/badges/built-with-love.svg"><br><img src="https://img.shields.io/badge/License-ISC-blue"></div>
