@@ -12,6 +12,8 @@
   "type": "commonjs",
   "dependencies": {
     "cookie": "^1.0.2",
-    "jsdom": "^26.1.0"
+    "ip6addr": "^0.2.5",
+    "jsdom": "^26.1.0",
+    "pac-proxy-agent": "^7.2.0"
   }
 }
