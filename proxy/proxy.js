@@ -1,3 +1,5 @@
+
+
 const http = require('http');
 const https = require('https');
 const { URL } = require('url');
@@ -5,12 +7,14 @@ const { createBrotliDecompress, createGunzip } = require('zlib');
 const { JSDOM } = require('jsdom');
 const { v4: uuidv4 } = require('uuid');
 const { parse: parseIp, isMatch: isIpInCIDR } = require('ip6addr');
-
+const path = require('path')
 const PORT = process.env.PORT || 3100;
 const SESSION_COOKIE = 'proxy_session';
 const ALLOWED_PROTOCOLS = new Set(['http:', 'https:']);
 const SESSION_TTL = 15 * 60 * 1000;
 const sessions = new Map();
+const fs = require('fs')
+const mime = require('mime-types');
 
 // Debugging with context
 const debug = {
@@ -162,6 +166,40 @@ function parseSetCookie(cookieString, targetUrl) {
 // ======================
 
 const server = http.createServer(async (clientReq, clientRes) => {
+    if (clientReq.url === '/') {
+        fs.readFile('proxy.html', (err, data) => {
+            if (err) {
+                clientRes.writeHead(500);
+                clientRes.end('Internal Server Error');
+                return;
+            }
+            clientRes.writeHead(200, {
+                'Content-Type': 'text/html',
+                'Content-Length': data.length
+            });
+            clientRes.end(data);
+        });
+        return; // Critical: Stop execution here
+    }
+
+    // Handle other static files (CSS, JS, images)
+    if (clientReq.url.match(/\.(css|js|png|jpg|ico)$/i)) {
+        const filePath = path.join(__dirname, clientReq.url);
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                clientRes.writeHead(404);
+                clientRes.end('Not Found');
+                return;
+            }
+            const contentType = mime.getType(path.extname(filePath)) || 'text/plain';
+            clientRes.writeHead(200, {
+                'Content-Type': contentType,
+                'Content-Length': data.length
+            });
+            clientRes.end(data);
+        });
+        return; // Critical: Stop execution here
+    }
   const contextId = uuidv4().slice(0, 8);
   const log = (...args) => debug.log(contextId, ...args);
   const error = (...args) => debug.error(contextId, ...args);

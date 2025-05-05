@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/wfogame/TaskManager/issues"
   },
-  "homepage": "https://github.com/wfogame/TaskManager#readme"
+  "homepage": "https://github.com/wfogame/TaskManager#readme",
+  "dependencies": {
+    "mime-types": "^3.0.1"
+  }
 }

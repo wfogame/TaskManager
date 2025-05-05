@@ -14,6 +14,7 @@
     "cookie": "^1.0.2",
     "ip6addr": "^0.2.5",
     "jsdom": "^26.1.0",
+    "mime-types": "^3.0.1",
     "pac-proxy-agent": "^7.2.0"
   }
 }
