@@ -14,7 +14,6 @@ const sessions = new Map();
 const fs = require('fs');
 const mime = require('mime-types');
 
-// Debugging with context
 const debug = {
   log: (context, ...args) => console.log(`[${new Date().toISOString()}] [${context}]`, ...args),
   error: (context, ...args) => console.error(`[${new Date().toISOString()}] [${context}]`, ...args)
@@ -160,37 +159,40 @@ function parseSetCookie(cookieString, targetUrl) {
 }
 
 // ======================
-// Missing Functions Implementation
-// ======================
-
-function getSession(clientReq) {
-  const cookieHeader = clientReq.headers.cookie || '';
-  const cookies = parseCookie(cookieHeader);
-  const sessionId = cookies[SESSION_COOKIE];
-  return sessions.get(sessionId);
-}
-
-function filterHeaders(originalHeaders) {
-  const forbiddenHeaders = [
-    'host', 'connection', 'referer',
-    'cookie', 'authorization', 'content-length'
-  ];
-  return Object.entries(originalHeaders).reduce((acc, [key, value]) => {
-    if (!forbiddenHeaders.includes(key.toLowerCase())) {
-      acc[key] = value;
-    }
-    return acc;
-  }, {});
-}
-
-// ======================
 // Core Proxy Functionality
 // ======================
+function getSession(clientReq) {
+    const cookieHeader = clientReq.headers.cookie || '';
+    const cookies = parseCookie(cookieHeader);
+    const sessionId = cookies[SESSION_COOKIE];
+    return sessions.get(sessionId);
+  }
+  
+  function filterHeaders(originalHeaders) {
+    const forbiddenHeaders = [
+      'host', 'connection', 'referer',
+      'cookie', 'authorization', 'content-length'
+    ];
+    return Object.entries(originalHeaders).reduce((acc, [key, value]) => {
+      if (!forbiddenHeaders.includes(key.toLowerCase())) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
+  }
+
+  
 
 const server = http.createServer(async (clientReq, clientRes) => {
   const contextId = uuidv4().slice(0, 8);
   const log = (...args) => debug.log(contextId, ...args);
   const error = (...args) => debug.error(contextId, ...args);
+  let clientClosed = false;
+
+  // Handle client connection termination
+  clientReq.on('close', () => {
+    clientClosed = true;
+  });
 
   try {
     // Handle root path
@@ -210,36 +212,32 @@ const server = http.createServer(async (clientReq, clientRes) => {
       return;
     }
 
-    // Handle static files with security fixes
-// Handle static files with security fixes
-// 1. Fix static file handling in the main server route
-if (clientReq.url.match(/^\/(?:[^?]+\/)?[^?]+\.(css|js|png|jpe?g|gif|svg|ico|woff2?|ttf|eot|webp)(\?.*)?$/i)) {
-  const filePath = path.join(__dirname, new URL(clientReq.url, 'http://dummy').pathname);
-  const resolvedPath = path.resolve(filePath);
+    // Fixed static file handling
+    if (clientReq.url.match(/^\/(?:[^?]+\/)?[^?]+\.(css|js|png|jpe?g|gif|svg|ico|woff2?|ttf|eot|webp)(\?.*)?$/i)) {
+      const parsedUrl = new URL(clientReq.url, 'http://dummy');
+      const filePath = path.join(__dirname, parsedUrl.pathname);
+      const resolvedPath = path.resolve(filePath);
 
-  // Security check against directory traversal
-  if (!resolvedPath.startsWith(__dirname)) {
-    clientRes.writeHead(403).end();
-    return;
-  }
+      if (!resolvedPath.startsWith(__dirname)) {
+        clientRes.writeHead(403).end();
+        return;
+      }
 
-  // Serve file with proper headers
-  fs.readFile(resolvedPath, (err, data) => {
-    if (err) {
-      clientRes.writeHead(404).end();
+      fs.readFile(resolvedPath, (err, data) => {
+        if (err) {
+          clientRes.writeHead(404).end();
+          return;
+        }
+        
+        const contentType = mime.contentType(path.extname(filePath)) || 'text/plain';
+        clientRes.writeHead(200, {
+          'Content-Type': contentType,
+          'Cache-Control': 'public, max-age=86400'
+        }).end(data);
+      });
       return;
     }
-    
-    const contentType = mime.contentType(path.extname(filePath)) || 'text/plain';
-    clientRes.writeHead(200, {
-      'Content-Type': contentType,
-      'Cache-Control': 'public, max-age=86400'
-    }).end(data);
-  });
-  return;
-}
 
-    // Proxy request handling
     log(`Request: ${clientReq.method} ${clientReq.url}`);
 
     if (!['GET', 'POST', 'HEAD'].includes(clientReq.method)) {
@@ -271,14 +269,12 @@ if (clientReq.url.match(/^\/(?:[^?]+\/)?[^?]+\.(css|js|png|jpe?g|gif|svg|ico|wof
       return clientRes.end('Forbidden');
     }
 
-    // Session handling
     let session = getSession(clientReq);
     if (!session) {
       session = createSession();
       clientRes.setHeader('Set-Cookie', `${SESSION_COOKIE}=${session.id}; Path=/; HttpOnly; SameSite=Lax`);
     }
 
-    // Proxy request setup
     const proxyReq = (targetUrl.protocol === 'https:' ? https : http).request({
       hostname: targetUrl.hostname,
       port: targetUrl.port || (targetUrl.protocol === 'https:' ? 443 : 80),
@@ -293,41 +289,50 @@ if (clientReq.url.match(/^\/(?:[^?]+\/)?[^?]+\.(css|js|png|jpe?g|gif|svg|ico|wof
       }
     });
 
-    // Request body handling
+    // Handle client abort
+    clientReq.on('aborted', () => {
+      if (!proxyReq.destroyed) proxyReq.destroy();
+    });
+
+    // Handle proxy errors
+    proxyReq.on('error', (err) => {
+      if (!clientClosed && !clientRes.headersSent) {
+        clientRes.statusCode = 502;
+        clientRes.end('Bad Gateway');
+      }
+    });
+
     if (clientReq.method === 'POST') {
       clientReq.pipe(proxyReq);
     } else {
       proxyReq.end();
     }
 
-    // Handle response
     const proxyRes = await new Promise(resolve => {
-      proxyReq.on('response', resolve).on('error', err => {
-        error('Upstream error:', err);
-        resolve(null);
-      });
+      proxyReq.on('response', resolve).on('error', () => resolve(null));
     });
 
-    if (!proxyRes) {
-      clientRes.statusCode = 502;
-      return clientRes.end('Bad Gateway');
+    if (!proxyRes || clientClosed) {
+      if (!clientRes.headersSent) clientRes.end();
+      return;
     }
 
-    // Handle cookies and redirects
     handleCookies(proxyRes, session, targetUrl);
     if ([301, 302, 307, 308].includes(proxyRes.statusCode)) {
       return handleRedirect(clientRes, proxyRes, targetUrl);
     }
 
-    // Content processing
     const { headers, body } = await processResponse(proxyRes, targetUrl);
-    clientRes.writeHead(proxyRes.statusCode, headers);
-    clientRes.end(body);
-
+    if (!clientClosed && !clientRes.headersSent) {
+      clientRes.writeHead(proxyRes.statusCode, headers);
+      clientRes.end(body);
+    }
   } catch (err) {
     error('Critical error:', err);
-    clientRes.statusCode = 500;
-    clientRes.end('Internal Server Error');
+    if (!clientClosed && !clientRes.headersSent) {
+      clientRes.statusCode = 500;
+      clientRes.end('Internal Server Error');
+    }
   }
 });
 
@@ -340,87 +345,67 @@ async function processResponse(proxyRes, targetUrl) {
   let body;
 
   try {
-    const isTextContent = ['text/html', 'text/css', 'application/javascript']
+    const isText = ['text/html', 'text/css', 'application/javascript']
       .some(t => headers['content-type']?.includes(t));
 
-    if (isTextContent) {
+    if (isText) {
       body = await processTextContent(proxyRes, targetUrl);
-      headers['content-length'] = body.length;
+      headers['content-length'] = Buffer.byteLength(body);
+      delete headers['content-encoding'];
     } else {
       body = await readStream(proxyRes);
+      headers['content-encoding'] = 'identity';
     }
 
-    delete headers['content-encoding'];
     return { headers, body };
   } catch (err) {
-    return {
-      headers: { 'content-type': 'text/plain' },
-      body: Buffer.from('Error processing content')
-    };
+    return { headers: {}, body: Buffer.alloc(0) };
   }
 }
 
 async function processTextContent(proxyRes, targetUrl) {
   let body = await readStream(proxyRes);
-  const encoding = proxyRes.headers['content-encoding'] || '';
+  const encoding = proxyRes.headers['content-encoding']?.toLowerCase() || '';
 
-  // Handle compressed content
-  if (encoding.toLowerCase() === 'gzip') {
+  if (encoding === 'gzip') {
     body = await decompress(body, createGunzip());
-  } else if (encoding.toLowerCase() === 'br') {
+  } else if (encoding === 'br') {
     body = await decompress(body, createBrotliDecompress());
   }
 
   const contentType = proxyRes.headers['content-type']?.split(';')[0] || 'text/plain';
-  const textBody = body.toString('utf8');
-  let modifiedBody = textBody;
+  let modifiedBody = body.toString('utf8');
 
   if (contentType.includes('text/html')) {
-    const dom = new JSDOM(textBody);
+    const dom = new JSDOM(modifiedBody);
     const document = dom.window.document;
 
-    // List of attributes to rewrite
-    const attributes = [
-      'href', 'src', 'action', 'srcset',
-      'data-src', 'data-href', 'poster',
-      'content', 'cite', 'data-original'
-    ];
-
-    // Process all attributes
+    const attributes = ['href', 'src', 'action', 'srcset', 'data-src', 'data-href', 'poster', 'content', 'cite'];
+    
     attributes.forEach(attr => {
       document.querySelectorAll(`[${attr}]`).forEach(el => {
         const value = el.getAttribute(attr);
-        if (value) {
-          try {
-            // Handle srcset specially
-            if (attr === 'srcset') {
-              const newSrcset = value.split(',')
-                .map(src => {
-                  const [url, density] = src.trim().split(/\s+/);
-                  return `${proxyUrl(url, targetUrl)} ${density || ''}`.trim();
-                })
-                .join(', ');
-              el.setAttribute(attr, newSrcset);
-            }
-            // Skip JavaScript/data URIs
-            else if (value.startsWith('javascript:') || value.startsWith('data:')) {
-              return;
-            }
-            // Handle regular URLs
-            else {
-              el.setAttribute(attr, proxyUrl(value, targetUrl));
-            }
-          } catch (err) {
-            console.error('Error processing attribute:', err);
+        if (!value) return;
+
+        try {
+          if (attr === 'srcset') {
+            const newSrcset = value.split(',')
+              .map(src => src.trim().split(/\s+/))
+              .map(([url, ...rest]) => [proxyUrl(url, targetUrl), ...rest].join(' '))
+              .join(', ');
+            el.setAttribute(attr, newSrcset);
+          } else if (!value.startsWith('javascript:') && !value.startsWith('data:')) {
+            el.setAttribute(attr, proxyUrl(value, targetUrl));
           }
+        } catch (err) {
+          debug.error('URL Rewrite', `Error processing ${attr}: ${err.message}`);
         }
       });
     });
 
-    // Add base tag if missing
     if (!document.querySelector('base')) {
       const base = document.createElement('base');
-      base.href = proxyUrl(targetUrl.href, targetUrl);
+      base.href = targetUrl.origin;
       document.head.prepend(base);
     }
 
@@ -430,24 +415,23 @@ async function processTextContent(proxyRes, targetUrl) {
   return Buffer.from(modifiedBody);
 }
 
-// Updated proxyUrl helper
 function proxyUrl(originalUrl, baseUrl) {
   try {
-      // Skip proxying for common static assets
-      if (originalUrl.startsWith('/') && 
-          !originalUrl.startsWith('//') &&
-          !originalUrl.includes('?')) {
-          const ext = path.extname(originalUrl).toLowerCase();
-          if (['.png','.jpg','.jpeg','.gif','.svg','.css','.js'].includes(ext)) {
-              return originalUrl;
-          }
-      }
-
-      const url = new URL(originalUrl, baseUrl);
-      const proxy = new URL(`/?url=${encodeURIComponent(url.href)}`, `http://${clientReq.headers.host}`);
-      return proxy.toString();
+    const url = new URL(originalUrl, baseUrl);
+    const proxy = new URL('/?url=' + encodeURIComponent(url.href), `http://${clientReq.headers.host}`);
+    
+    // Preserve original query parameters
+    const searchParams = new URLSearchParams(url.search);
+    if (searchParams.toString()) {
+      proxy.search += (proxy.search ? '&' : '') + searchParams.toString();
+    }
+    
+    // Preserve hash fragment
+    proxy.hash = url.hash;
+    
+    return proxy.toString();
   } catch {
-      return originalUrl;
+    return originalUrl;
   }
 }
 

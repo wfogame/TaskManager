@@ -8,26 +8,39 @@
         :root {
             --primary: #2c3e50;
             --secondary: #3498db;
+            --background: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f6fa;
+            background: var(--background);
+            min-height: 100vh;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
 
         .header {
-            background-color: var(--primary);
+            background: var(--primary);
             color: white;
-            padding: 1rem;
-            border-radius: 8px;
+            padding: 1.5rem;
             margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-weight: 300;
+            font-size: 2.2em;
         }
 
         .proxy-form {
@@ -38,31 +51,45 @@
 
         #urlInput {
             flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 4px;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
             font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        #urlInput:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
         button {
-            padding: 12px 24px;
-            background-color: var(--secondary);
+            padding: 12px 30px;
+            background: var(--secondary);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         button:hover {
-            background-color: #2980b9;
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         #contentFrame {
             width: 100%;
             height: calc(100vh - 180px);
-            border: 2px solid #ddd;
+            border: none;
             border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
             background: white;
         }
 
@@ -87,20 +114,39 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .proxy-form {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Web Proxy</h1>
-        </div>
+        <header class="header">
+            <h1>Secure Web Proxy</h1>
+        </header>
         
         <form class="proxy-form" onsubmit="loadUrl(event)">
             <input 
-                type="url" 
+             
                 id="urlInput" 
                 placeholder="Enter website URL (e.g., https://example.com)"
                 required
+                autofocus
             >
             <button type="submit">Browse</button>
         </form>
@@ -113,6 +159,7 @@
             id="contentFrame"
             sandbox="allow-scripts allow-forms allow-same-origin"
             referrerpolicy="no-referrer"
+            title="Proxy Content"
         ></iframe>
     </div>
 
@@ -135,14 +182,22 @@
             frame.onload = () => {
                 loading.style.display = 'none';
                 frame.style.opacity = '1';
+                // Maintain scroll position after load
+                const scrollPos = window.scrollY || document.documentElement.scrollTop;
+                window.scrollTo(0, scrollPos);
             };
 
             frame.src = proxyUrl;
         }
 
-        // Handle Enter key in input
-        document.getElementById('urlInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loadUrl(e);
+        // Handle URL parameters for direct links
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialUrl = urlParams.get('url');
+            if (initialUrl) {
+                document.getElementById('urlInput').value = initialUrl;
+                loadUrl(new Event('submit'));
+            }
         });
     </script>
 </body>
